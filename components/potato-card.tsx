@@ -9,8 +9,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { getContract, createWalletClient, custom } from "viem";
-import { sepolia } from "viem/chains";
 import { potatoABI } from "@/app/abi";
 import { useState } from "react";
 import { useAccount, useWriteContract } from "wagmi";
@@ -19,7 +17,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
 import {} from "wagmi";
-import WalletProvider, { wagmiConfig } from "./wallet-provider";
+import { wagmiConfig } from "./wallet-provider";
 import { readContract } from "@wagmi/core";
 import Link from "next/link";
 
@@ -31,45 +29,44 @@ export function PotatoCard() {
     const { data: hash, writeContract } = useWriteContract();
     const addRecentTransaction = useAddRecentTransaction();
 
-    const [potato, setPotato] = useState(0);
-    const [sourcream, setSourcream] = useState(0);
-    const [cheese, setCheese] = useState(0);
-    const [bacon, setBacon] = useState(0);
-    const [chives, setChives] = useState(0);
+    const [potato, setPotato] = useState(BigInt(0));
+    const [sourcream, setSourcream] = useState(BigInt(0));
+    const [cheese, setCheese] = useState(BigInt(0));
+    const [bacon, setBacon] = useState(BigInt(0));
+    const [chives, setChives] = useState(BigInt(0));
 
     async function readPotato(){
         try {
-
-    
             const ingredients = await readContract(wagmiConfig, {
                  address: CONTRACT_ADDRESS,
                  abi: potatoABI,
                  functionName: 'getIngredients',
             }) as number[];
-            setPotato(ingredients[0]);
-            setSourcream(ingredients[1]);
-            setCheese(ingredients[2]);
-            setBacon(ingredients[3]);
-            setChives(ingredients[4]);
+            setPotato(BigInt(ingredients[0]));
+            setSourcream(BigInt(ingredients[1]));
+            setCheese(BigInt(ingredients[2]));
+            setBacon(BigInt(ingredients[3]));
+            setChives(BigInt(ingredients[4]));
         } catch (error) {
             console.error("Error reading ingredients:", error);
         }
     };
-3
+
     async function buyPotato(potatoAmount: number, sourcreamAmount: number, cheeseAmount: number, baconAmount: number, chivesAmount: number) {
         await readPotato();
         writeContract({
             address: CONTRACT_ADDRESS,
             abi: potatoABI,
             functionName: "buyPotato",
-            args: [potatoAmount, sourcreamAmount, cheeseAmount, baconAmount, chivesAmount],
+            args: [BigInt(potatoAmount), BigInt(sourcreamAmount), BigInt(cheeseAmount), BigInt(baconAmount), BigInt(chivesAmount)],
         });
             // Add transaction to recent transactions
         if (hash) {
             console.log("hash: ", hash);
             addRecentTransaction({
                 hash: hash,
-                description: "Buy a potato",                    confirmations: 2,
+                description: "Buy a potato",    
+                confirmations: 2,
             });
         }
         
@@ -83,8 +80,9 @@ export function PotatoCard() {
             address: CONTRACT_ADDRESS,
             abi: potatoABI,
             functionName: "addIngredient",
-            args: [potatoAmount, sourcreamAmount, cheeseAmount, baconAmount, chivesAmount],
+            args: [BigInt(potatoAmount), BigInt(sourcreamAmount), BigInt(cheeseAmount), BigInt(baconAmount), BigInt(chivesAmount)],
         });
+        
         console.log("Ingredients added successfully");
     }
 
@@ -150,19 +148,19 @@ export function PotatoCard() {
           <Card className="m-2">
             <CardHeader>
               <CardTitle>Baked Potato Shop</CardTitle>
-              <CardDescription>
-                Total supply: 
-                <br />
-                Potatoes: {potato.toString()}
-                <br />
-                Sour Cream: {sourcream.toString()}
-                <br />
-                Cheese: {cheese.toString()}
-                <br />
-                Bacon: {bacon.toString()}
-                <br />
-                Chives: {chives.toString()}
-              </CardDescription>
+                <CardDescription>
+                    Total supply: 
+                    <br />
+                    Potatoes: <span>{potato.toString()}</span>
+                    <br />
+                    Sour Cream: <span>{sourcream.toString()}</span>
+                    <br />
+                    Cheese: <span>{cheese.toString()}</span>
+                    <br />
+                    Bacon: <span>{bacon.toString()}</span>
+                    <br />
+                    Chives: <span>{chives.toString()}</span>
+                </CardDescription>
             </CardHeader>
             <CardContent>
               <Button onClick={readPotato}>Read Potato Contract</Button>

@@ -4,6 +4,7 @@ import { getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import React, { Children } from 'react';
 
 export const wagmiConfig = getDefaultConfig({
     appName: 'My RainbowKit App',
@@ -12,8 +13,12 @@ export const wagmiConfig = getDefaultConfig({
     ssr: true,
 });
 
+
 export default function WalletProvider({ children }: { children: React.ReactNode }) {
     const queryClient = new QueryClient();
+
+    // Filter out invalid children types
+
     return (
         <WagmiProvider config={wagmiConfig}>
             <QueryClientProvider client={queryClient}>
